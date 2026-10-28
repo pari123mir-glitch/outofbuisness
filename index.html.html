@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>College Notes: Out of Business</title>
+    <style>
+        :root {
+            --bg-gradient-start: #2a0845;
+            --bg-gradient-end: #6441A5;
+            --accent-pink: #fa709a;
+            --accent-aqua: #00f2fe;
+            --accent-gold: #f6d365;
+            --text-light: #ffffff;
+            --text-dark: #333333;
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --correct-color: #28a745;
+            --incorrect-color: #dc3545;
+            --disabled-color: #cccccc;
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--bg-gradient-start), var(--bg-gradient-end));
+            color: var(--text-dark);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation: none !important;
+                transition: none !important;
+            }
+        }
+
+        /* --- Login Screen Styles --- */
+        #login-screen {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 40px 30px;
+            text-align: center;
+            box-shadow: var(--shadow);
+            max-width: 450px;
+            width: 100%;
+            margin: auto;
+            margin-top: 10vh;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        #login-screen h1 {
+            color: var(--bg-gradient-end);
+            font-size: 2.2rem;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        #login-screen h2 {
+            color: var(--text-dark);
+            font-size: 1.1rem;
+            font-weight: 500;
+            margin-bottom: 20px;
+        }
+
+        #login-screen input {
+            padding: 15px;
+            font-size: 1.1rem;
+            border: 2px solid var(--disabled-color);
+            border-radius: 8px;
+            width: 100%;
+            transition: var(--transition);
+        }
+
+        #login-screen input:focus {
+            outline: none;
+            border-color: var(--accent-aqua);
+            box-shadow: 0 0 8px rgba(0, 242, 254, 0.3);
+        }
+
+        #login-screen button {
+            background: var(--accent-aqua);
+            color: var(--text-dark);
+            width: 100%;
+            padding: 15px;
+            font-size: 1.2rem;
+            margin-top: 10px;
+            cursor: pointer;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+
+        #login-screen button:hover {
+            background: #00d2df;
+            transform: translateY(-2px);
+        }
+
+        .login-error {
+            color: var(--incorrect-color);
+            font-weight: bold;
+            display: none;
+            margin-top: 10px;
+        }
+
+        /* --- App Container (Hidden initially) --- */
+        #app-container {
+            display: none; 
+            width: 100%;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Header */
+        header {
+            width: 100%;
+            max-width: 800px;
+            text-align: center;
+            color: var(--text-light);
+            margin-bottom: 20px;
+            padding: 20px;
+            background: linear-gradient(90deg, var(--accent-pink), var(--accent-aqua));
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+        }
+
+        header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+
+        header h2 {
+            font-size: 1.2rem;
+            font-weight: 400;
+            color: var(--accent-gold);
+            margin-bottom: 5px;
+        }
+
+        header h3 {
+            font-size: 1rem;
+            font-weight: 300;
+        }
+
+        /* Dashboard */
+        .dashboard {
+            width: 100%;
+            max-width: 800px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            background: var(--card-bg);
+            padding: 15px 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+            font-weight: bold;
+        }
+
+        .dashboard div {
+            margin: 5px 10px;
+            text-align: center;
+            flex: 1;
+            min-width: 100px;
+        }
+
+        .dashboard span {
+            display: block;
+            font-size: 1.2rem;
+            color: var(--bg-gradient-end);
+        }
+
+        .dashboard label {
+            font-size: 0.8rem;
+            color: #666;
+            text-transform: uppercase;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            width: 100%;
+            background-color: #e0e0e0;
+            border-radius: 10px;
+            margin-top: 10px;
+            overflow: hidden;
+            height: 10px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-aqua), var(--accent-pink));
+            width: 0%;
+            transition: var(--transition);
+        }
+
+        /* Main Quiz Area */
+        main {
+            width: 100%;
+            max-width: 800px;
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: var(--shadow);
+            position: relative;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            font-weight: bold;
+            color: var(--bg-gradient-end);
+            border-bottom: 2px solid var(--accent-gold);
+            padding-bottom: 10px;
+        }
+
+        .question-text {
+            font-size: 1.4rem;
+            margin-bottom: 25px;
+            line-height: 1.4;
+        }
+
+        /* Options */
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option {
+            background: #ffffff;
+            border: 2px solid var(--bg-gradient-end);
+            border-radius: 10px;
+            padding: 15px 20px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .option:hover:not(.disabled) {
+            background: var(--bg-gradient-end);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .option.disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .option.correct {
+            background-color: var(--correct-color);
+            border-color: var(--correct-color);
+            color: white;
+        }
+
+        .option.incorrect {
+            background-color: var(--incorrect-color);
+            border-color: var(--incorrect-color);
+            color: white;
+        }
+
+        .option.hidden-5050 {
+            visibility: hidden;
+            opacity: 0;
+        }
+
+        .option-label {
+            font-weight: bold;
+            margin-right: 15px;
+            background: var(--accent-gold);
+            color: var(--text-dark);
+            width: 30px;
+            height: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        /* Feedback Message */
+        .feedback {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            display: none;
+            font-weight: 500;
+            animation: fadeIn 0.5s;
+        }
+
+        .feedback.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .feedback.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 25px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .lifelines {
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        button:focus-visible {
+            outline: 3px solid var(--accent-gold);
+            outline-offset: 2px;
+        }
+
+        .btn-lifeline {
+            background: var(--accent-aqua);
+            color: var(--text-dark);
+        }
+
+        .btn-lifeline:hover:not(:disabled) {
+            background: #00d2df;
+            transform: translateY(-2px);
+        }
+
+        .btn-lifeline:disabled {
+            background: var(--disabled-color);
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+
+        .btn-next {
+            background: var(--accent-pink);
+            color: white;
+            padding: 12px 30px;
+        }
+
+        .btn-next:hover:not(:disabled) {
+            background: #e06085;
+            transform: translateY(-2px);
+        }
+
+        .btn-next:disabled {
+            background: var(--disabled-color);
+            cursor: not-allowed;
+        }
+
+        /* Results Screen */
+        #results-screen {
+            display: none;
+            text-align: center;
+        }
+
+        .result-circle {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: conic-gradient(var(--accent-aqua) var(--percentage), var(--disabled-color) 0);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 20px;
+            position: relative;
+        }
+        
+        .result-circle::before {
+            content: "";
+            width: 120px;
+            height: 120px;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+        }
+
+        .result-text {
+            position: relative;
+            z-index: 1;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--bg-gradient-start);
+            background: white;
+            padding: 30px;
+            border-radius: 50%;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .stat-box {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #dee2e6;
+        }
+
+        .stat-box h4 {
+            color: #6c757d;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+
+        .stat-box p {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--bg-gradient-end);
+        }
+
+        .result-message {
+            font-size: 1.2rem;
+            margin: 20px 0;
+            color: var(--text-dark);
+            padding: 15px;
+            border-radius: 8px;
+            background: rgba(246, 211, 101, 0.3);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 600px) {
+            header h1 { font-size: 1.5rem; }
+            .dashboard div { margin: 5px 0; min-width: 45%; }
+            .controls { flex-direction: column; align-items: stretch; }
+            .lifelines { justify-content: center; }
+            .btn-next { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Password Screen -->
+    <div id="login-screen">
+        <h1>COLLEGE NOTES</h1>
+        <h2>Mir Sir – Online MCQ Test</h2>
+        <!-- Changed type to "text" so students can see what they are typing -->
+        <input type="text" id="password-input" placeholder="Type password here..." autofocus>
+        <button onclick="checkPassword()">Enter</button>
+        <div id="login-error" class="login-error">Incorrect password. Please type "college notes".</div>
+    </div>
+
+    <!-- Main Quiz App (Hidden until login) -->
+    <div id="app-container">
+        <header>
+            <h1> College Notes Quiz </h1>
+            <h2>English Literature Quiz</h2>
+            <h3>Story: "Out of Business" by R.K. Narayan </h3>
+        </header>
+
+        <div class="dashboard" id="dashboard" aria-live="polite">
+            <div>
+                <label>Marks</label>
+                <span id="score-display">0 / 0</span>
+            </div>
+            <div>
+                <label>Progress</label>
+                <span id="progress-display">1 / 40</span>
+            </div>
+            <div>
+                <label>Correct</label>
+                <span id="correct-display">0</span>
+            </div>
+            
+            <div class="progress-container">
+                <div class="progress-bar" id="progress-bar"></div>
+            </div>
+        </div>
+
+        <main id="quiz-container">
+            <div id="question-screen">
+                <div class="question-header">
+                    <span id="question-number">Question 1</span>
+                    <span id="question-marks">Marks: 1</span>
+                </div>
+                
+                <h2 class="question-text" id="question-text">Loading question...</h2>
+                
+                <div class="options" id="options-container">
+                    <!-- Options will be dynamically injected here -->
+                </div>
+                
+                <div id="feedback" class="feedback" aria-live="assertive"></div>
+                
+                <div class="controls">
+                    <div class="lifelines">
+                        <button class="btn-lifeline" id="btn-5050" onclick="use5050()" title="Remove two incorrect options">50:50</button>
+                        <button class="btn-lifeline" id="btn-hint" onclick="useHint()" title="Show a helpful hint">Hint</button>
+                        <button class="btn-lifeline" id="btn-skip" onclick="useSkip()" title="Skip this question">Skip</button>
+                    </div>
+                    <button class="btn-next" id="btn-next" onclick="nextQuestion()" disabled>Next Question</button>
+                </div>
+            </div>
+
+            <div id="results-screen">
+                <h2>Quiz Completed!</h2>
+                
+                <div class="result-circle" id="result-circle">
+                    <div class="result-text" id="result-percentage">100%</div>
+                </div>
+                
+                <div class="result-message" id="result-message">Outstanding performance!</div>
+                
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <h4>Total Marks</h4>
+                        <p id="final-marks">0 / 39</p>
+                    </div>
+                    <div class="stat-box">
+                        <h4>Correct</h4>
+                        <p id="final-correct">0</p>
+                    </div>
+                    <div class="stat-box">
+                        <h4>Incorrect</h4>
+                        <p id="final-incorrect">0</p>
+                    </div>
+                    <div class="stat-box">
+                        <h4>Skipped</h4>
+                        <p id="final-skipped">0</p>
+                    </div>
+                </div>
+                
+                <button class="btn-next" style="width: 100%; max-width: 300px; margin-top: 20px;" onclick="restartQuiz()">Restart Quiz</button>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // --- Password Logic ---
+        document.getElementById('password-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                checkPassword();
+            }
+        });
+
+        function checkPassword() {
+            // Get the text typed by the student
+            let rawPwd = document.getElementById('password-input').value;
+            
+            // Remove extra spaces at the beginning or end and make it lowercase
+            let cleanPwd = rawPwd.trim().toLowerCase();
+            const err = document.getElementById('login-error');
+            
+            // Allow them to enter "college notes" or "collegenotes" (case-insensitive)
+            if (cleanPwd === 'college notes' || cleanPwd === 'collegenotes') {
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('app-container').style.display = 'flex';
+                initQuiz();
+            } else {
+                err.style.display = 'block';
+            }
+        }
+
+        /* --------------------------------------------------------
+            START CONFIGURATION
+           -------------------------------------------------------- */
+        const quizData = [
+            { question: "Who is the central character's name in R.K. Narayan's short story 'Out of Business'?", options: ["Rama Narayan", "Rama Rao", "R.K. Narayan", "Rama Malgudi"], correctAnswer: 1, marks: 1 },
+            { question: "What was Rama Rao's occupation before he went out of work?", options: ["Banker", "Gramophone company owner", "Factory worker", "Agent for a gramophone company"], correctAnswer: 3, marks: 1 },
+            { question: "Why did the gramophone company collapse?", options: ["A bank in Lahore crashed", "Rama Rao's wife eloped with a cashier", "The company's factory burned down", "Rama Rao made poor business decisions"], correctAnswer: 0, marks: 1 },
+            { question: "What was the reason behind the financier's death mentioned in the story?", options: ["Car accident", "Illness", "Suicide due to his wife's elopement", "Natural causes"], correctAnswer: 2, marks: 1 },
+            { question: "How did Rama Rao's wife respond to their financial difficulties?", options: ["She spent more money", "She hired more servants", "She took measures to cut down expenditure", "She invested in stocks"], correctAnswer: 2, marks: 1 },
+            { question: "Where did Rama Rao and his family move after letting out their bungalow?", options: ["A luxurious mansion", "A small house behind the Market", "A fashionable nursery school", "A pre-primary school"], correctAnswer: 1, marks: 1 },
+            { question: "What happened to the gramophone company that Rama Rao was associated with?", options: ["It expanded its factory", "It went out of existence", "It changed its business model", "It moved to Northern India"], correctAnswer: 1, marks: 1 },
+            { question: "Where did Rama Rao find the journal that offered prizes for crossword puzzles?", options: ["At the railway station", "At the municipal office", "At the main office of the gramophone company", "At the Jubilee Reading Room"], correctAnswer: 3, marks: 1 },
+            { question: "What was the name of the journal that offered a prize for crossword puzzles?", options: ["The Patriot", "Life", "The Captain", "The Hindu"], correctAnswer: 2, marks: 1 },
+            { question: "What was the amount of the special cash prize the journal offered?", options: ["Rs. 3000", "Rs. 4000", "Rs. 5000", "Rs. 8000"], correctAnswer: 3, marks: 1 },
+            { question: "What did Rama Rao find in the Jubilee Reading Room?", options: ["A crossword puzzle book", "A novel by R.K. Narayan", "A journal called The Captain", "A collection of short stories"], correctAnswer: 2, marks: 1 },
+            { question: "What kind of content did 'The Captain' journal mainly consist of?", options: ["Short stories", "Crossword puzzles", "Poetry", "Political articles"], correctAnswer: 1, marks: 1 },
+            { question: "What normal prize did 'The Captain' journal offer for its crossword puzzle competition?", options: ["Two thousand rupees", "Five thousand rupees", "Eight thousand rupees", "Four thousand rupees"], correctAnswer: 3, marks: 1 },
+            { question: "What did Rama Rao do at the newsagent's shop on the day the results were due?", options: ["He bought a subscription to 'The Captain'", "He argued with the newsagent", "He read the latest issue for free", "He paid for his crossword entry"], correctAnswer: 2, marks: 1 },
+            { question: "What did Rama Rao offer to the newsagent in exchange for waiting for the prize?", options: ["A new crossword puzzle book", "A subscription to 'The Captain'", "A cash reward", "A free crossword solution"], correctAnswer: 1, marks: 1 },
+            { question: "What did Rama Rao's family rely on for their only source of income?", options: ["Stock investments", "His wife's job", "Rent from the bungalow", "Support from relatives"], correctAnswer: 2, marks: 1 },
+            { question: "Rama Rao was the Malgudi agent of which company?", options: ["Gramophone", "Telephone", "Saxophone", "Watch company"], correctAnswer: 0, marks: 1 },
+            { question: "Rama Rao was waiting for the train to come from which place?", options: ["Bangalore", "Madras", "Trichinopoly", "Hampi"], correctAnswer: 2, marks: 1 },
+            { question: "Where did the financer of the company live?", options: ["Kolkata", "Bombay", "Delhi", "Jaipur"], correctAnswer: 1, marks: 1 },
+            { question: "Why did Rama Rao rent out his bungalow?", options: ["To save expenditure", "To earn money from rent", "There was a problem with the construction of the bungalow", "Atmosphere of the bungalow was not suitable for his children"], correctAnswer: 1, marks: 1 },
+            { question: "The Bombay financer's wife had eloped with his:", options: ["Manager", "Clerk", "Cashier", "Servant"], correctAnswer: 2, marks: 1 },
+            { question: "Rama Rao was the ________ agent of the gramophone company.", options: ["Madras", "Malgudi", "Bombay", "Delhi"], correctAnswer: 1, marks: 1 },
+            { question: "The Captain is a ________ journal.", options: ["Daily", "Weekly", "Monthly", "Yearly"], correctAnswer: 1, marks: 1 },
+            { question: "What type of woman was Mrs. Rao?", options: ["A woman of mild disposition", "Very economic in family expenditures", "Incapable of continuing a quarrel", "All of these"], correctAnswer: 3, marks: 1 },
+            { question: "How did the special offer of eight thousand rupees affect Rama Rao?", options: ["He became anxious.", "He became angry.", "He became excited.", "He became sad."], correctAnswer: 2, marks: 1 },
+            { question: "How many doubtful corners were there in the puzzle?", options: ["Two", "Three", "Four", "Five"], correctAnswer: 2, marks: 1 },
+            { question: "Why did Rama Rao need more money from his wife?", options: ["To buy food", "To invest in stocks", "To enter multiple times in the contest", "To pay off debts"], correctAnswer: 2, marks: 1 },
+            { question: "What did Rama Rao do after sending his solutions by registered post?", options: ["He built castles in the air.", "He went on vacation.", "He started a new job.", "He moved to a new town."], correctAnswer: 0, marks: 1 },
+            { question: "Where was the bank situated in 'Out of Business'?", options: ["Bangalore", "Bombay", "Lahore", "Calcutta"], correctAnswer: 2, marks: 1 },
+            { question: "In 'Out of Business' why did the bank crash?", options: ["Due to loss in the share market", "Due to the death of a Bombay financier", "Due to global recession", "Due to Rama Rao's loss in business"], correctAnswer: 1, marks: 1 },
+            { question: "Where did Rama Rao’s children study after his business failed?", options: ["In a fashionable high-school", "In a government school", "In a fashionable nursery school", "In a free primary school"], correctAnswer: 3, marks: 1 },
+            { question: "What was the reason for the train delay that saved Rama Rao?", options: ["Engine failure", "Bad weather", "Derailment of a goods train", "Strikes by railway workers"], correctAnswer: 2, marks: 1 },
+            { question: "What did Rama Rao's wife mention about their tenants?", options: ["They wanted a loan.", "They wanted to buy the bungalow.", "They were moving away.", "They needed help with a puzzle."], correctAnswer: 1, marks: 1 },
+            { question: "How much money did Rama Rao's wife say they could get for selling the house?", options: ["Four thousand rupees", "Four and a half thousand rupees", "Five thousand rupees", "Six thousand rupees"], correctAnswer: 1, marks: 1 },
+            { question: "How did Rama Rao plan to use the money from selling the house?", options: ["To buy new clothes", "To invest in stocks", "To travel to Madras", "To start a new business"], correctAnswer: 2, marks: 1 },
+            { question: "What did Rama Rao's wife suspect he might do with the money?", options: ["Invest it in crossword puzzles", "Spend it on luxury items", "Give it to their children", "Donate it to charity"], correctAnswer: 0, marks: 1 },
+            { question: "What did Rama Rao swear after his wife's question?", options: ["To never sell the house", "To leave his family", "To quit his job", "To never play puzzles again"], correctAnswer: 3, marks: 1 },
+            { question: "In 'Out of Business', What happens to the central character at the end?", options: ["He becomes rich", "He leaves the town and moved to Madras", "He committed suicide", "He borrows money"], correctAnswer: 1, marks: 1 },
+            { question: "R.K Narayan is famous for creating the fictional town:", options: ["Chandrapur", "Malgudi", "Lucknow", "Shantiniketan"], correctAnswer: 1, marks: 1 }
+        ];
+        /* --------------------------------------------------------
+            END CONFIGURATION
+           ======================================================== */
+
+        // Application State
+        let currentQuestionIndex = 0;
+        let marksObtained = 0;
+        let totalPossibleMarks = 0;
+        let correctAnswers = 0;
+        let incorrectAnswers = 0;
+        let skippedAnswers = 0;
+        let isQuestionAnswered = false;
+
+        // Lifeline State
+        let used5050 = false;
+        let usedHint = false;
+        let usedSkip = false;
+
+        // Calculate total possible marks on load
+        const maxMarksTotal = quizData.reduce((sum, q) => sum + q.marks, 0);
+
+        // DOM Elements
+        const elScoreDisplay = document.getElementById('score-display');
+        const elProgressDisplay = document.getElementById('progress-display');
+        const elCorrectDisplay = document.getElementById('correct-display');
+        const elProgressBar = document.getElementById('progress-bar');
+        
+        const elQuestionNumber = document.getElementById('question-number');
+        const elQuestionMarks = document.getElementById('question-marks');
+        const elQuestionText = document.getElementById('question-text');
+        const elOptionsContainer = document.getElementById('options-container');
+        
+        const elFeedback = document.getElementById('feedback');
+        const elBtnNext = document.getElementById('btn-next');
+        
+        const elBtn5050 = document.getElementById('btn-5050');
+        const elBtnHint = document.getElementById('btn-hint');
+        const elBtnSkip = document.getElementById('btn-skip');
+
+        const elQuizContainer = document.getElementById('question-screen');
+        const elResultsScreen = document.getElementById('results-screen');
+
+        const labels = ['A', 'B', 'C', 'D'];
+
+        function initQuiz() {
+            currentQuestionIndex = 0;
+            marksObtained = 0;
+            totalPossibleMarks = 0;
+            correctAnswers = 0;
+            incorrectAnswers = 0;
+            skippedAnswers = 0;
+            
+            used5050 = false;
+            usedHint = false;
+            usedSkip = false;
+            
+            elBtn5050.disabled = false;
+            elBtnHint.disabled = false;
+            elBtnSkip.disabled = false;
+
+            elQuizContainer.style.display = 'block';
+            elResultsScreen.style.display = 'none';
+
+            loadQuestion();
+        }
+
+        function updateDashboard() {
+            elScoreDisplay.innerText = `${marksObtained} / ${maxMarksTotal}`;
+            elProgressDisplay.innerText = `${currentQuestionIndex + 1} / ${quizData.length}`;
+            elCorrectDisplay.innerText = correctAnswers;
+            
+            const progressPercent = (currentQuestionIndex / quizData.length) * 100;
+            elProgressBar.style.width = `${progressPercent}%`;
+        }
+
+        function loadQuestion() {
+            isQuestionAnswered = false;
+            elFeedback.style.display = 'none';
+            elFeedback.className = 'feedback';
+            elBtnNext.disabled = true;
+
+            const qData = quizData[currentQuestionIndex];
+            
+            elQuestionNumber.innerText = `Question ${currentQuestionIndex + 1}`;
+            elQuestionMarks.innerText = `Marks: ${qData.marks}`;
+            elQuestionText.innerText = qData.question;
+            
+            elOptionsContainer.innerHTML = '';
+            
+            qData.options.forEach((optText, index) => {
+                const optDiv = document.createElement('div');
+                optDiv.className = 'option';
+                optDiv.id = `option-${index}`;
+                optDiv.onclick = () => selectOption(index);
+                
+                optDiv.innerHTML = `
+                    <div class="option-label">${labels[index]}</div>
+                    <div class="option-text">${optText}</div>
+                `;
+                elOptionsContainer.appendChild(optDiv);
+            });
+
+            elBtn5050.disabled = used5050;
+            elBtnHint.disabled = usedHint;
+            elBtnSkip.disabled = usedSkip;
+            
+            updateDashboard();
+        }
+
+        function selectOption(selectedIndex) {
+            if (isQuestionAnswered) return; 
+            
+            isQuestionAnswered = true;
+            const qData = quizData[currentQuestionIndex];
+            const isCorrect = selectedIndex === qData.correctAnswer;
+            totalPossibleMarks += qData.marks; 
+
+            const options = elOptionsContainer.children;
+            for(let i = 0; i < options.length; i++) {
+                options[i].classList.add('disabled');
+                options[i].onclick = null;
+            }
+
+            elBtn5050.disabled = true;
+            elBtnHint.disabled = true;
+            elBtnSkip.disabled = true;
+
+            if (isCorrect) {
+                options[selectedIndex].classList.add('correct');
+                marksObtained += qData.marks;
+                correctAnswers++;
+                
+                elFeedback.innerHTML = `<strong>Correct!</strong> Well done. <br><small>${qData.explanation || ''}</small>`;
+                elFeedback.className = 'feedback success';
+            } else {
+                options[selectedIndex].classList.add('incorrect');
+                options[qData.correctAnswer].classList.add('correct');
+                incorrectAnswers++;
+                
+                elFeedback.innerHTML = `<strong>Incorrect.</strong> The correct answer was ${labels[qData.correctAnswer]}. <br><small>${qData.explanation || ''}</small>`;
+                elFeedback.className = 'feedback error';
+            }
+            
+            elFeedback.style.display = 'block';
+            elBtnNext.disabled = false;
+            
+            if (currentQuestionIndex === quizData.length - 1) {
+                elProgressBar.style.width = `100%`;
+            }
+            
+            updateDashboard();
+        }
+
+        function use5050() {
+            if (used5050 || isQuestionAnswered) return;
+            
+            used5050 = true;
+            elBtn5050.disabled = true;
+            
+            const qData = quizData[currentQuestionIndex];
+            const correctIndex = qData.correctAnswer;
+            let incorrectIndices = [0, 1, 2, 3].filter(i => i !== correctIndex);
+            
+            incorrectIndices.sort(() => Math.random() - 0.5);
+            const toHide = incorrectIndices.slice(0, 2);
+            
+            toHide.forEach(index => {
+                const opt = document.getElementById(`option-${index}`);
+                opt.classList.add('hidden-5050');
+                opt.onclick = null;
+            });
+        }
+
+        function useHint() {
+            if (usedHint || isQuestionAnswered) return;
+            
+            usedHint = true;
+            elBtnHint.disabled = true;
+            
+            const qData = quizData[currentQuestionIndex];
+            elFeedback.innerHTML = `<strong>Hint:</strong> ${qData.hint || 'No hint available for this question.'}`;
+            elFeedback.className = 'feedback';
+            elFeedback.style.backgroundColor = '#e2f0fb';
+            elFeedback.style.color = '#0056b3';
+            elFeedback.style.border = '1px solid #b8daff';
+            elFeedback.style.display = 'block';
+        }
+
+        function useSkip() {
+            if (usedSkip || isQuestionAnswered) return;
+            
+            usedSkip = true;
+            elBtnSkip.disabled = true;
+            skippedAnswers++;
+            isQuestionAnswered = true; 
+            totalPossibleMarks += quizData[currentQuestionIndex].marks;
+
+            const options = elOptionsContainer.children;
+            for(let i = 0; i < options.length; i++) {
+                options[i].classList.add('disabled');
+                options[i].onclick = null;
+            }
+
+            elFeedback.innerHTML = `<strong>Question Skipped.</strong> No marks awarded.`;
+            elFeedback.className = 'feedback error';
+            elFeedback.style.display = 'block';
+            
+            elBtnNext.disabled = false;
+            
+            if (currentQuestionIndex === quizData.length - 1) {
+                elProgressBar.style.width = `100%`;
+            }
+            updateDashboard();
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            
+            if (currentQuestionIndex < quizData.length) {
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            elQuizContainer.style.display = 'none';
+            elResultsScreen.style.display = 'block';
+            
+            const percent = maxMarksTotal > 0 ? Math.round((marksObtained / maxMarksTotal) * 100) : 0;
+            
+            document.getElementById('result-circle').style.setProperty('--percentage', `${percent}%`);
+            document.getElementById('result-percentage').innerText = `${percent}%`;
+            
+            document.getElementById('final-marks').innerText = `${marksObtained} / ${maxMarksTotal}`;
+            document.getElementById('final-correct').innerText = correctAnswers;
+            document.getElementById('final-incorrect').innerText = incorrectAnswers;
+            document.getElementById('final-skipped').innerText = skippedAnswers;
+            
+            const resultMsg = document.getElementById('result-message');
+            if (percent >= 90) {
+                resultMsg.innerText = "Excellent performance! You have mastered this story.";
+                resultMsg.style.background = "#d4edda";
+                resultMsg.style.color = "#155724";
+            } else if (percent >= 70) {
+                resultMsg.innerText = "Great job! You have a solid understanding of the text.";
+                resultMsg.style.background = "#e2f0fb";
+                resultMsg.style.color = "#0056b3";
+            } else if (percent >= 50) {
+                resultMsg.innerText = "Good effort! Review the questions you missed to improve.";
+                resultMsg.style.background = "rgba(246, 211, 101, 0.3)";
+                resultMsg.style.color = "#856404";
+            } else {
+                resultMsg.innerText = "Keep practicing! Read the story again and retry the quiz.";
+                resultMsg.style.background = "#f8d7da";
+                resultMsg.style.color = "#721c24";
+            }
+        }
+
+        function restartQuiz() {
+            initQuiz();
+        }
+    </script>
+</body>
+</html>
